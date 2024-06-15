@@ -36,7 +36,8 @@ const Page = async ({ params, searchParams }: any) => {
     downvotes: [],
     hasupVoted: true,
     hasdownVoted: false,
-    content: "<p>I'm working on a Next.js project and want to implement Server-Side Rendering (SSR) for efficient data fetching. What are the best practices for data fetching in a Next.js application with SSR? How can I ensure that my data is pre-fetched on the server and passed to the client for improved performance and SEO?</p>",
+    content:
+      "<p>I'm working on a Next.js project and want to implement Server-Side Rendering (SSR) for efficient data fetching. What are the best practices for data fetching in a Next.js application with SSR? How can I ensure that my data is pre-fetched on the server and passed to the client for improved performance and SEO?</p>\n<pre class=\"language-markup\"><code>// pages/index.js\n\nimport React from 'react';\n\nfunction HomePage({ data }) {\n  return (\n    &lt;div&gt;\n      {/* Render data here */}\n    &lt;/div&gt;\n  );\n}\n\nexport async function getServerSideProps() {\n  const res = await fetch('https://api.example.com/data');\n  const data = await res.json();\n\n  return {\n    props: {\n      data,\n    },\n  };\n}\n\nexport default HomePage;</code></pre>",
     author: {
       id: "49820948290",
       name: "Ahsan Author",
