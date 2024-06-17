@@ -3,7 +3,7 @@ import React from "react";
 import RenderTag from "../RenderTag";
 import Metric from "../Metric";
 import { formatAndDivideNumber, getTimestamp } from "@/lib/utils";
-import { SignedIn } from "@clerk/nextjs";
+// import { SignedIn } from "@clerk/nextjs";
 import EditDeleteAction from "../EditDeleteAction";
 
 interface QuestionProps {
@@ -53,11 +53,11 @@ const QuestionCard = ({
           </Link>
         </div>
 
-        <SignedIn>
           {showActionButtons && (
             <EditDeleteAction type="Question" itemId={JSON.stringify(id)} />
           )}
-        </SignedIn>
+        {/* <SignedIn>
+        </SignedIn> */}
       </div>
 
       <div className="mt-3.5 flex flex-wrap gap-2">
