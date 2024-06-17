@@ -9,6 +9,65 @@ body {
 }
 
 @layer utilities {
+  .h1-bold {
+    @apply text-[36px] font-bold leading-[140%] tracking-tighter;
+  }
+
+  .h1-semibold {
+    @apply text-[36px] font-semibold leading-[140%] tracking-tighter;
+  }
+
+  .h2-bold {
+    @apply text-[30px] font-bold leading-[140%] tracking-tighter;
+  }
+
+  .h3-bold {
+    @apply text-[24px] font-bold leading-[140%] tracking-tighter;
+  }
+
+  .h4-bold {
+    @apply text-[20px] font-bold leading-[140%] tracking-tighter;
+  }
+
+  .base-semibold {
+    @apply text-[16px] font-semibold leading-[140%] tracking-tighter;
+  }
+
+  .base-medium {
+    @apply text-[16px] font-medium leading-[140%];
+  }
+
+  .base-regular {
+    @apply text-[16px] font-normal leading-[140%];
+  }
+
+  .body-bold {
+    @apply text-[18px] font-bold leading-[140%];
+  }
+
+  .body-medium {
+    @apply text-[18px] font-medium leading-[140%];
+  }
+
+  .small-semibold {
+    @apply text-[14px] font-semibold leading-[140%] tracking-tighter;
+  }
+
+  .small-medium {
+    @apply text-[14px] font-medium leading-[140%];
+  }
+
+  .small-regular {
+    @apply text-[14px] font-normal leading-[140%];
+  }
+
+  .subtle-semibold {
+    @apply text-[12px] font-semibold leading-[140%];
+  }
+
+  .tiny-medium {
+    @apply text-[10px] font-medium leading-[140%];
+  }
   .flex-center {
     @apply flex justify-center items-center;
   }
@@ -56,6 +115,14 @@ body {
   .tab {
     @apply min-h-full dark:bg-dark-400 bg-light-800 text-light-500 dark:data-[state=active]:bg-dark-300 data-[state=active]:bg-primary-100 data-[state=active]:text-primary-500 !important;
   }
+}
+
+.shad-input {
+  @apply h-12 w-full rounded-md border-none py-3 px-3 bg-dark-300 focus-visible:ring-1 focus-visible:ring-offset-1 outline-none  !important;
+}
+
+.shad-button_primary {
+  @apply bg-primary-500 hover:bg-primary-500 flex gap-2 h-10 justify-center items-center *:whitespace-nowrap rounded-md text-sm font-medium  transition-colors focus-visible:outline-none text-white focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50  px-4 py-2  !important;
 }
 
 .no-focus {
@@ -139,27 +206,4 @@ code {
   overflow-x: auto;
 
   color: inherit !important;
-}
-/* Markdown End */
-
-/* Clerk */
-.cl-internal-b3fm6y {
-  background: linear-gradient(129deg, #ff7000 0%, #e2995f 100%) !important;
-}
-
-.hash-span {
-  margin-top: -140px;
-  padding-bottom: 140px;
-  display: block;
-}
-
-/* Hide scrollbar for Chrome, Safari and Opera */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
-.no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
 }
