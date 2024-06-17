@@ -7,24 +7,27 @@ import RenderTag from "../RenderTag";
 interface Props {
   user: {
     id: string;
-    clerkId: string;
-    picture: string;
+    profileImage: string;
     name: string;
-    username: string;
+    userName: string;
+    tags: any;
   };
 }
 
 const UserCard = async ({ user }: Props) => {
-  const interactedTags = [{ id: "83492809438", name: "Ahsan Iqbal" }];
+  const interactedTags = [
+    { id: "83492809438", name: "Ahsan Iqbal" },
+    { id: "93480923840982348", name: "Ahsan" },
+  ];
 
   return (
     <Link
-      href={`/profile/${user.clerkId}`}
+      href={`/profile/${user?.id}`}
       className="shadow-light100_darknone w-full max-xs:min-w-full xs:w-[260px]"
     >
       <article className="background-light900_dark200 light-border flex w-full flex-col items-center justify-center rounded-2xl border p-8">
         <Image
-          src={user.picture}
+          src={user?.profileImage}
           alt="user profile picture"
           width={100}
           height={100}
@@ -33,22 +36,24 @@ const UserCard = async ({ user }: Props) => {
 
         <div className="mt-4 text-center">
           <h3 className="h3-bold text-dark200_light900 line-clamp-1">
-            {user.name}
+            {user?.name}
           </h3>
           <p className="body-regular text-dark500_light500 mt-2">
-            @{user.username}
+            @{user?.userName}
           </p>
         </div>
 
         <div className="mt-5">
-          {interactedTags.length > 0 ? (
+          {user?.tags?.length > 0 ? (
             <div className="flex items-center gap-2">
-              {interactedTags.map((tag) => (
-                <RenderTag key={tag.id} id={tag.id} name={tag.name} />
+              {user?.tags?.map((tag: any, index: any) => (
+                <RenderTag key={index} id={index} name={tag} />
               ))}
             </div>
           ) : (
-            <Badge>No tags yet</Badge>
+            <Badge className="subtle-medium background-light800_dark300 text-light400_light500 rounded-md border-none px-4 py-2 uppercase">
+              No tags yet
+            </Badge>
           )}
         </div>
       </article>
