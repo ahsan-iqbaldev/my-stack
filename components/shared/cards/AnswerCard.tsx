@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import Metric from "../Metric";
 import { formatAndDivideNumber, getTimestamp } from "@/lib/utils";
-import { SignedIn } from "@clerk/nextjs";
+// import { SignedIn } from "@clerk/nextjs";
 import EditDeleteAction from "../EditDeleteAction";
 
 interface Props {
@@ -47,11 +47,11 @@ const AnswerCard = ({
           </h3>
         </div>
 
-        <SignedIn>
           {showActionButtons && (
             <EditDeleteAction type="Answer" itemId={JSON.stringify(id)} />
           )}
-        </SignedIn>
+        {/* <SignedIn>
+        </SignedIn> */}
       </div>
 
       <div className="flex-between mt-6 w-full flex-wrap gap-3">
