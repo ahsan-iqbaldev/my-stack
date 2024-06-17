@@ -1,3 +1,4 @@
+"use client";
 import UserCard from "@/components/shared/cards/UserCard";
 import Filter from "@/components/shared/Filter";
 import Pagination from "@/components/shared/Pagination";
@@ -5,13 +6,19 @@ import LocalSearchbar from "@/components/shared/search/LocalSearchbar";
 import { UserFilters } from "@/constants/filters";
 import { SearchParamsProps } from "@/types";
 import Link from "next/link";
-import type { Metadata } from "next";
+// import type { Metadata } from "next";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { ThunkDispatch } from "@reduxjs/toolkit";
+import { getUsers } from "@/store/slices/communitySlice";
 
-export const metadata: Metadata = {
-  title: "Community | Dev Overflow",
-};
+// export const metadata: Metadata = {
+//   title: "Community | Dev Overflow",
+// };
 
-const Page = async ({ searchParams }: SearchParamsProps) => {
+const Page = ({ searchParams }: SearchParamsProps) => {
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
+  const { users } = useSelector((state: any) => state.community);
   const result = {
     users: [
       {
@@ -52,6 +59,10 @@ const Page = async ({ searchParams }: SearchParamsProps) => {
     ],
   };
 
+  useEffect(() => {
+    dispatch(getUsers());
+  }, []);
+
   return (
     <>
       <h1 className="h1-bold text-dark100_light900">All Users</h1>
@@ -72,8 +83,8 @@ const Page = async ({ searchParams }: SearchParamsProps) => {
       </div>
 
       <section className="mt-12 flex flex-wrap gap-4">
-        {result.users.length > 0 ? (
-          result.users.map((user) => <UserCard key={user.id} user={user} />)
+        {users?.length > 0 ? (
+          users?.map((user: any) => <UserCard key={user.id} user={user} />)
         ) : (
           <div className="paragraph-regular text-dark200_light800 mx-auto max-w-4xl text-center">
             <p>No users yet</p>
