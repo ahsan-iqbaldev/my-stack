@@ -7,13 +7,15 @@ import Votes from "@/components/shared/Votes";
 // import { getQuestionById } from '@/lib/actions/question.action';
 // import { getUserById } from '@/lib/actions/user.action';
 import { formatAndDivideNumber, getTimestamp } from "@/lib/utils";
-import { auth } from "@clerk/nextjs/server";
+// import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
 const Page = async ({ params, searchParams }: any) => {
-  const { userId } = auth();
+  // const { userId } = auth();
+
+  const userId = "7238479327";
 
   //   let mongoUser;
 
