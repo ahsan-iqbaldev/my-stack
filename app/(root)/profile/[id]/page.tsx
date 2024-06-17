@@ -1,6 +1,7 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { URLProps } from "@/types";
-import { SignedIn } from "@clerk/nextjs";
+// import { SignedIn } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,10 +12,16 @@ import ProfileLink from "@/components/shared/ProfileLink";
 import Stats from "@/components/shared/Stats";
 import QuestionTab from "@/components/shared/QuestionTab";
 import AnswersTab from "@/components/shared/AnswersTab";
-import { auth } from "@clerk/nextjs/server";
+import { useSelector } from "react-redux";
+import { redirect } from "next/navigation";
+// import { auth } from "@clerk/nextjs/server";
 
-const Page = async ({ params, searchParams }: URLProps) => {
-  const { userId: clerkId } = auth();
+const Page = ({ params, searchParams }: URLProps) => {
+  const { user } = useSelector((state: any) => state.authentication);
+
+  if (!user) redirect("/sign-in");
+
+  const userId = user?.userId;
   const userInfo = {
     user: {
       id: "98309483984",
@@ -88,15 +95,13 @@ const Page = async ({ params, searchParams }: URLProps) => {
         </div>
 
         <div className="flex justify-end max-sm:mb-5 max-sm:w-full sm:mt-3">
-          <SignedIn>
-            {clerkId === userInfo.user.clerkId && (
-              <Link href="/profile/edit">
-                <Button className="paragraph-medium btn-secondary text-dark300_light900 min-h-[46px] min-w-[175px] px-4 py-3">
-                  Edit Profile
-                </Button>
-              </Link>
-            )}
-          </SignedIn>
+          {userId === userId && (
+            <Link href="/profile/edit">
+              <Button className="paragraph-medium btn-secondary text-dark300_light900 min-h-[46px] min-w-[175px] px-4 py-3">
+                Edit Profile
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 
