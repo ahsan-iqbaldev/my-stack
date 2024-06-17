@@ -3,7 +3,7 @@ import { HomePageFilters } from "@/constants/filters";
 import Link from "next/link";
 
 import type { Metadata } from "next";
-import { auth } from "@clerk/nextjs/server";
+// import { auth } from "@clerk/nextjs/server";
 import { SearchParamsProps } from "@/types";
 import LocalSearchbar from "@/components/shared/search/LocalSearchbar";
 import QuestionCard from "@/components/shared/cards/QuestionCard";
@@ -18,9 +18,10 @@ export const metadata: Metadata = {
 };
 
 export default async function Home({ searchParams }: SearchParamsProps) {
-  const { userId } = auth();
+  // const { userId } = auth();
 
   let result;
+  let userId = null;
 
   if (searchParams?.filter === "recommended") {
     if (userId) {
