@@ -38,7 +38,7 @@ const Answer = ({ question, questionId, authorId }: Props) => {
     },
   });
 
-  const handleCreateAnswer = async (values: z.infer<typeof AnswerSchema>) => {
+  const handleCreateAnswer =  (values: z.infer<typeof AnswerSchema>) => {
     setIsSubmitting(true);
 
     try {
@@ -70,37 +70,37 @@ const Answer = ({ question, questionId, authorId }: Props) => {
     }
   };
 
-  const generateAIAnswer = async () => {
-    if (!authorId) return;
+  const generateAIAnswer =  () => {
+    // if (!authorId) return;
 
-    setSetIsSubmittingAI(true);
+    // setSetIsSubmittingAI(true);
 
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/chatgpt`,
-        {
-          method: "POST",
-          body: JSON.stringify({ question }),
-        }
-      );
+    // try {
+    //   // const response = await fetch(
+    //   //   `${process.env.NEXT_PUBLIC_SERVER_URL}/api/chatgpt`,
+    //   //   {
+    //   //     method: "POST",
+    //   //     body: JSON.stringify({ question }),
+    //   //   }
+    //   // );
 
-      const aiAnswer = await response.json();
+    //   // const aiAnswer = await response.json();
 
-      // Convert plain text to HTML format
+    //   // // Convert plain text to HTML format
 
-      const formattedAnswer = aiAnswer.reply.replace(/\n/g, "<br />");
+    //   // const formattedAnswer = aiAnswer.reply.replace(/\n/g, "<br />");
 
-      if (editorRef.current) {
-        const editor = editorRef.current as any;
-        editor.setContent(formattedAnswer);
-      }
+    //   // if (editorRef.current) {
+    //   //   const editor = editorRef.current as any;
+    //   //   editor.setContent(formattedAnswer);
+    //   // }
 
-      // Toast...
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setSetIsSubmittingAI(false);
-    }
+    //   // Toast...
+    // } catch (error) {
+    //   console.log(error);
+    // } finally {
+    //   setSetIsSubmittingAI(false);
+    // }
   };
 
   return (
