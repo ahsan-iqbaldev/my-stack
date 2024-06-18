@@ -5,6 +5,7 @@ import Metric from "../Metric";
 import { formatAndDivideNumber, getTimestamp } from "@/lib/utils";
 // import { SignedIn } from "@clerk/nextjs";
 import EditDeleteAction from "../EditDeleteAction";
+import moment from "moment";
 
 interface QuestionProps {
   id: string;
@@ -16,13 +17,13 @@ interface QuestionProps {
   author: {
     id: string;
     name: string;
-    picture: string;
+    profileImage: any;
     clerkId: string;
   };
   upvotes: string[];
   views: number;
   answers: Array<object>;
-  createdAt: Date;
+  createdAt: any;
   clerkId?: string | null;
 }
 
@@ -44,7 +45,7 @@ const QuestionCard = ({
       <div className="flex flex-col-reverse items-start justify-between gap-5 sm:flex-row">
         <div>
           <span className="subtle-regular text-dark400_light700 line-clamp-1 flex sm:hidden">
-            {getTimestamp(createdAt)}
+            {moment.unix(createdAt?.seconds).format("DD-MMM-YYYY")}
           </span>
           <Link href={`/question/${id}`}>
             <h3 className="sm:h3-semibold base-semibold text-dark200_light900 line-clamp-1 flex-1">
@@ -53,25 +54,27 @@ const QuestionCard = ({
           </Link>
         </div>
 
-          {showActionButtons && (
-            <EditDeleteAction type="Question" itemId={JSON.stringify(id)} />
-          )}
+        {showActionButtons && (
+          <EditDeleteAction type="Question" itemId={JSON.stringify(id)} />
+        )}
         {/* <SignedIn>
         </SignedIn> */}
       </div>
 
       <div className="mt-3.5 flex flex-wrap gap-2">
-        {tags.map((tag) => (
-          <RenderTag key={tag.id} id={tag.id} name={tag.name} />
+        {tags.map((tag: any) => (
+          <RenderTag key={tag} id={tag} name={tag} />
         ))}
       </div>
 
       <div className="flex-between mt-6 w-full flex-wrap gap-3">
         <Metric
-          imgUrl={author.picture}
+          imgUrl={author?.profileImage}
           alt="user"
           value={author.name}
-          title={` - asked ${getTimestamp(createdAt)}`}
+          title={` - asked  ${moment
+            .unix(createdAt?.seconds)
+            .format("DD-MMM-YYYY")}`}
           href={`/profile/${author.id}`}
           isAuthor
           textStyles="body-medium text-dark400_light700"
@@ -80,7 +83,7 @@ const QuestionCard = ({
           <Metric
             imgUrl="/assets/icons/like.svg"
             alt="Upvotes"
-            value={formatAndDivideNumber(upvotes.length)}
+            value={formatAndDivideNumber(upvotes?.length)}
             title=" Votes"
             textStyles="small-medium text-dark400_light800"
           />
