@@ -1,13 +1,20 @@
 "use client";
 import Question from "@/components/shared/forms/Question";
+import { getTags } from "@/store/slices/questionSlice";
+import { ThunkDispatch } from "@reduxjs/toolkit";
 import { redirect } from "next/navigation";
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const Page = () => {
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
   const { user } = useSelector((state: any) => state.authentication);
 
   if (!user) redirect("/sign-in");
+
+  useEffect(() => {
+    dispatch(getTags());
+  }, []);
 
   return (
     <div>
