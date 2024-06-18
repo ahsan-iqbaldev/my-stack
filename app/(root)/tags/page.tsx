@@ -6,7 +6,7 @@ import { TagFilters } from "@/constants/filters";
 import { SearchParamsProps } from "@/types";
 import Link from "next/link";
 
-const Page = async ({ searchParams }: SearchParamsProps) => {
+const Page =  ({ searchParams }: SearchParamsProps) => {
   const result = {
     tags: [
       {
@@ -15,7 +15,7 @@ const Page = async ({ searchParams }: SearchParamsProps) => {
         questions: [],
       },
       {
-        id: "9823049823",
+        id: "9823049823", 
         name: "Ahsan",
         questions: [],
       },
