@@ -1,3 +1,4 @@
+"use client";
 import Answer from "@/components/shared/forms/Answer";
 import AllAnswers from "@/components/shared/AllAnswers";
 import Metric from "@/components/shared/Metric";
@@ -10,20 +11,19 @@ import { formatAndDivideNumber, getTimestamp } from "@/lib/utils";
 // import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getSingleQuestion } from "@/store/slices/homeSlice";
+import { ThunkDispatch } from "@reduxjs/toolkit";
+import moment from "moment";
 
-const Page = async ({ params, searchParams }: any) => {
-  // const { userId } = auth();
+const Page = ({ params, searchParams }: any) => {
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
+  const { user } = useSelector((state: any) => state.authentication);
+  const { sinleQuestion } = useSelector((state: any) => state.home);
 
-  const userId = "7238479327";
-
-  //   let mongoUser;
-
-  //   if(clerkId) {
-  //     mongoUser = await getUserById({ userId: clerkId })
-  //   }
-
-  //   const result = await getQuestionById({ questionId: params.id });
+  const userId = user?.userId;
+  const docId = params?.id;
 
   const result = {
     title:
@@ -33,13 +33,13 @@ const Page = async ({ params, searchParams }: any) => {
     answers: [],
     id: "89789748973",
     createdAt: new Date(),
-    hasSaved: true,
+    hasSaved: false,
     upvotes: [],
     downvotes: [],
     hasupVoted: true,
     hasdownVoted: false,
     content:
-      "<p>I'm working on a Next.js project and want to implement Server-Side Rendering (SSR) for efficient data fetching. What are the best practices for data fetching in a Next.js application with SSR? How can I ensure that my data is pre-fetched on the server and passed to the client for improved performance and SEO?</p>\n<pre class=\"language-markup\"><code>// pages/index.js\n\nimport React from 'react';\n\nfunction HomePage({ data }) {\n  return (\n    &lt;div&gt;\n      {/* Render data here */}\n    &lt;/div&gt;\n  );\n}\n\nexport async function getServerSideProps() {\n  const res = await fetch('https://api.example.com/data');\n  const data = await res.json();\n\n  return {\n    props: {\n      data,\n    },\n  };\n}\n\nexport default HomePage;</code></pre>",
+      "<p>I'm working on a Next.js project and want to implement Server-Side Rendering (SSR) for efficient data fetching. What are the best practices for data fetching in a Next.js application with SSR? How can I ensure that my data is pre-fetched on the server and passed to the client for improved performance and SEO?</p>\n<pre class=\"language-markup\"><code>// pages/index.js\n\nimport React from 'react';\n\nfunction HomePage({ data }) {\n  return (\n    &lt;div&gt;\n      {/* Render data here */}\n    &lt;/div&gt;\n  );\n}\n\nexport function getServerSideProps() {\n  const res = fetch('https://api.example.com/data');\n  const data = res.json();\n\n  return {\n    props: {\n      data,\n    },\n  };\n}\n\nexport default HomePage;</code></pre>",
     author: {
       id: "49820948290",
       name: "Ahsan Author",
@@ -71,40 +71,52 @@ const Page = async ({ params, searchParams }: any) => {
     ],
   };
 
+  useEffect(() => {
+    dispatch(getSingleQuestion({ docId, userId }));
+  }, []);
+
   return (
     <>
       <div className="flex-start w-full flex-col">
         <div className="flex w-full flex-col-reverse justify-between gap-5 sm:flex-row sm:items-center sm:gap-2">
           <Link
-            href={`/profile/${result.author.clerkId}`}
+            href={`/profile/${sinleQuestion?.author?.id}`}
             className="flex items-center justify-start gap-1"
           >
             <Image
-              src={result.author.picture}
+              src={sinleQuestion?.author?.profileImage}
               className="rounded-full"
               width={22}
               height={22}
               alt="profile"
             />
             <p className="paragraph-semibold text-dark300_light700">
-              {result.author.name}
+              {sinleQuestion?.author?.name}
             </p>
           </Link>
           <div className="flex justify-end">
             <Votes
               type="Question"
-              itemId={JSON.stringify(result.id)}
-              userId={JSON.stringify(userId)}
-              upvotes={result.upvotes.length}
-              hasupVoted={result.hasupVoted}
+              itemId={sinleQuestion?.id}
+              userId={userId}
+              upvotes={sinleQuestion?.upvotes}
+              hasupVoted={
+                sinleQuestion?.stats == null
+                  ? false
+                  : sinleQuestion?.stats[0]?.hasupVoted
+              }
               downvotes={result.downvotes.length}
-              hasdownVoted={result.hasdownVoted}
+              hasdownVoted={
+                sinleQuestion?.stats == null
+                  ? false
+                  : sinleQuestion?.stats[0]?.hasdownVoted
+              }
               hasSaved={result?.hasSaved}
             />
           </div>
         </div>
         <h2 className="h2-semibold text-dark200_light900 mt-3.5 w-full text-left">
-          {result.title}
+          {sinleQuestion?.title}
         </h2>
       </div>
 
@@ -112,7 +124,9 @@ const Page = async ({ params, searchParams }: any) => {
         <Metric
           imgUrl="/assets/icons/clock.svg"
           alt="clock icon"
-          value={` asked ${getTimestamp(result.createdAt)}`}
+          value={` asked ${moment
+            .unix(sinleQuestion?.createdAt?.seconds)
+            .format("DD-MMM-YYYY")}`}
           title=" Asked"
           textStyles="small-medium text-dark400_light800"
         />
@@ -132,21 +146,16 @@ const Page = async ({ params, searchParams }: any) => {
         />
       </div>
 
-      <ParseHTML data={result.content} />
+      <ParseHTML data={sinleQuestion?.content || ""} />
 
       <div className="mt-8 flex flex-wrap gap-2">
-        {result.tags.map((tag: any) => (
-          <RenderTag
-            key={tag.id}
-            id={tag.id}
-            name={tag.name}
-            showCount={false}
-          />
+        {sinleQuestion?.tags?.map((tag: any) => (
+          <RenderTag key={tag} id={tag} name={tag} showCount={false} />
         ))}
       </div>
 
       <AllAnswers
-        questionId={result.id}
+        questionId={sinleQuestion?.id}
         userId={userId}
         totalAnswers={result.answers.length}
         page={searchParams?.page}
@@ -154,8 +163,8 @@ const Page = async ({ params, searchParams }: any) => {
       />
 
       <Answer
-        question={result.content}
-        questionId={JSON.stringify(result.id)}
+        question={sinleQuestion?.content}
+        questionId={JSON.stringify(sinleQuestion?.id)}
         authorId={JSON.stringify(userId)}
       />
     </>
