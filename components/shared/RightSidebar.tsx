@@ -5,7 +5,7 @@ import RenderTag from "./RenderTag";
 // import { getHotQuestions } from "@/lib/actions/question.action";
 // import { getTopPopularTags } from "@/lib/actions/tag.actions";
 
-const RightSidebar = async () => {
+const RightSidebar =  () => {
   const hotQuestions = [
     {
       title:
