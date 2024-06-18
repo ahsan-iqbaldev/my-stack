@@ -14,7 +14,7 @@ interface Props {
   };
 }
 
-const UserCard = async ({ user }: Props) => {
+const UserCard =  ({ user }: Props) => {
   const interactedTags = [
     { id: "83492809438", name: "Ahsan Iqbal" },
     { id: "93480923840982348", name: "Ahsan" },
