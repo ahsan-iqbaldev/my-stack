@@ -23,7 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { useDispatch } from "react-redux";
 import { ThunkDispatch } from "@reduxjs/toolkit";
 import { updateProfile } from "@/store/slices/profileSlice";
-import { toast } from "react-toastify";
+import { toast } from "@/components/ui/use-toast";
 // import { updateUser } from "@/lib/actions/user.action";
 
 interface Props {
@@ -34,7 +34,7 @@ interface Props {
 const Profile = ({ clerkId, user }: Props) => {
   const type = "";
   const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
-  const userId = user?.userId
+  const userId = user?.userId;
   const parsedUser = user;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -50,7 +50,7 @@ const Profile = ({ clerkId, user }: Props) => {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof ProfileSchema>) {
+  function onSubmit(values: z.infer<typeof ProfileSchema>) {
     // setIsSubmitting(true);
 
     console.log(values, "values");
@@ -60,7 +60,9 @@ const Profile = ({ clerkId, user }: Props) => {
         values,
         userId,
         onSuccess: () => {
-            toast.success("Profile updated successfully")
+          toast({
+            title: `Profile updated successfully`,
+          });
         },
       })
     );
@@ -95,6 +97,8 @@ const Profile = ({ clerkId, user }: Props) => {
 
       const tagInput = e.target as HTMLInputElement;
       const tagValue = tagInput.value.trim();
+
+      console.log(tagValue, "tagValue");
 
       if (tagValue !== "") {
         if (tagValue.length > 15) {
@@ -253,8 +257,8 @@ const Profile = ({ clerkId, user }: Props) => {
                 </>
               </FormControl>
               <FormDescription className="body-regular mt-2.5 text-light-500">
-                Add up to 2 tags to describe what your question is about. You
-                need to press enter to add a tag.
+                Add 2 tags to describe about you. You need to press enter to add
+                a tag.
               </FormDescription>
               <FormMessage className="text-red-500" />
             </FormItem>
