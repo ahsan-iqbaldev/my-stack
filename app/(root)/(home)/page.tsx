@@ -1,8 +1,7 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { HomePageFilters } from "@/constants/filters";
 import Link from "next/link";
-
-import type { Metadata } from "next";
 // import { auth } from "@clerk/nextjs/server";
 import { SearchParamsProps } from "@/types";
 import LocalSearchbar from "@/components/shared/search/LocalSearchbar";
@@ -12,13 +11,15 @@ import NoResult from "@/components/shared/NoResult";
 import Pagination from "@/components/shared/Pagination";
 import Filter from "@/components/shared/Filter";
 import HomeFilters from "@/components/home/HomeFilters";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { ThunkDispatch } from "@reduxjs/toolkit";
+import { getQuestions } from "@/store/slices/homeSlice";
 
-export const metadata: Metadata = {
-  title: "Home | My Stack",
-};
-
-export default async function Home({ searchParams }: SearchParamsProps) {
+export default function Home({ searchParams }: SearchParamsProps) {
   // const { userId } = auth();
+  const { allQuestions } = useSelector((state: any) => state.home);
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
 
   let result;
   let userId = null;
@@ -73,6 +74,10 @@ export default async function Home({ searchParams }: SearchParamsProps) {
     // });
   }
 
+  useEffect(() => {
+    dispatch(getQuestions());
+  }, []);
+
   return (
     <>
       <div className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
@@ -104,17 +109,20 @@ export default async function Home({ searchParams }: SearchParamsProps) {
       <HomeFilters />
 
       <div className="mt-10 flex w-full flex-col gap-6">
-        {result?.questions.length > 0 ? (
-          result?.questions.map((question) => (
+        {allQuestions?.length > 0 ? (
+          allQuestions?.map((question: any) => (
             <QuestionCard
               key={question?.id}
               id={question?.id}
               title={question.title}
               tags={question.tags}
               author={question.author}
-              upvotes={question.upvotes}
-              views={question.views}
-              answers={question.answers}
+              upvotes={["ahsan", "ali", "usman"]}
+              views={5}
+              answers={[
+                { id: "1", author: "ali" },
+                { id: "2", author: "Ahsan" },
+              ]}
               createdAt={question.createdAt}
             />
           ))
