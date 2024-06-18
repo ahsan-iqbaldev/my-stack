@@ -17,7 +17,7 @@ interface Props {
   filter?: string;
 }
 
-const AllAnswers = async ({
+const AllAnswers =  ({
   questionId,
   userId,
   totalAnswers,
