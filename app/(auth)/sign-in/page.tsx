@@ -1,12 +1,12 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
 import { sigInUser } from "@/store/slices/authSlice";
 import { ThunkDispatch } from "@reduxjs/toolkit";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { toast } from "react-toastify";
 
 const signin = () => {
   const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
@@ -26,7 +26,9 @@ const signin = () => {
       sigInUser({
         formData,
         onSuccess: () => {
-          toast.success("Account Login successfully");
+          toast({
+            title: `Account Login successfully`,
+          });
           setFormData({
             email: "",
             password: "",
