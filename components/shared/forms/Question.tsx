@@ -21,6 +21,19 @@ import Image from "next/image";
 // import { createQuestion, editQuestion } from '@/lib/actions/question.action';
 import { useRouter, usePathname } from "next/navigation";
 import { useTheme } from "@/context/ThemeProvider";
+import { useDispatch, useSelector } from "react-redux";
+import { ThunkDispatch } from "@reduxjs/toolkit";
+import { addQuestion } from "@/store/slices/questionSlice";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "@/components/ui/use-toast";
+// import { toast } from "react-toastify";
 
 interface Props {
   type?: string;
@@ -31,6 +44,10 @@ interface Props {
 const Question = ({ type, mongoUserId, questionDetails }: Props) => {
   const { mode } = useTheme();
   const editorRef = useRef(null);
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
+  const { user } = useSelector((state: any) => state.authentication);
+  const { tags } = useSelector((state: any) => state.question);
+  const userId = user?.userId;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -51,7 +68,7 @@ const Question = ({ type, mongoUserId, questionDetails }: Props) => {
   });
 
   // 2. Define a submit handler.
-  async function onSubmit(values: z.infer<typeof QuestionsSchema>) {
+   function onSubmit(values: z.infer<typeof QuestionsSchema>) {
     setIsSubmitting(true);
 
     try {
@@ -69,10 +86,21 @@ const Question = ({ type, mongoUserId, questionDetails }: Props) => {
           title: values.title,
           content: values.explanation,
           tags: values.tags,
-          author: JSON.parse(mongoUserId),
+          author: userId,
           path: pathname,
         };
-        console.log(payload, "payload");
+        dispatch(
+          addQuestion({
+            payload,
+            onSuccess: () => {
+              toast({
+                title: `Question added successfully`,
+              });
+              router.push("/");
+            },
+          })
+        );
+
         // await createQuestion({
         //   title: values.title,
         //   content: values.explanation,
@@ -81,7 +109,7 @@ const Question = ({ type, mongoUserId, questionDetails }: Props) => {
         //   path: pathname,
         // });
 
-        router.push("/");
+        // router.push("/");
       }
     } catch (error) {
     } finally {
@@ -89,17 +117,16 @@ const Question = ({ type, mongoUserId, questionDetails }: Props) => {
     }
   }
 
-  const handleInputKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    field: any
-  ) => {
-    if (e.key === "Enter" && field.name === "tags") {
+  const handleInputKeyDown = (e: any, field: any) => {
+    console.log("Hyy dudedude");
+    if (field.name === "tags") {
       e.preventDefault();
 
-      const tagInput = e.target as HTMLInputElement;
-      const tagValue = tagInput.value.trim();
+      // const tagInput = e.target
+      const tagValue = e.target.value.trim();
+      console.log(tagValue, "tagValue");
 
-      if (tagValue !== "") {
+      if (tagValue !== "" && tagValue !== "Add tags...") {
         if (tagValue.length > 15) {
           return form.setError("tags", {
             type: "required",
@@ -109,7 +136,7 @@ const Question = ({ type, mongoUserId, questionDetails }: Props) => {
 
         if (!field.value.includes(tagValue as never)) {
           form.setValue("tags", [...field.value, tagValue]);
-          tagInput.value = "";
+          // tagInput.value = "";
           form.clearErrors("tags");
         }
       } else {
@@ -219,13 +246,27 @@ const Question = ({ type, mongoUserId, questionDetails }: Props) => {
               </FormLabel>
               <FormControl className="mt-3.5">
                 <>
-                  <Input
-                    disabled={type === "Edit"}
-                    className="no-focus paragraph-regular background-light900_dark300 light-border-2 text-dark300_light700 min-h-[56px] border"
-                    placeholder="Add tags..."
-                    onKeyDown={(e) => handleInputKeyDown(e, field)}
-                  />
-
+                  <select
+                    className="no-focus paragraph-regular background-light900_dark300 light-border-2 text-dark300_light700 min-h-[56px] border p-2"
+                    onChange={(e) => handleInputKeyDown(e, field)}
+                  >
+                    <option
+                      className="line-clamp-1 flex-1 text-left py-1.5"
+                      value="Add tags..."
+                    >
+                      Add tags...
+                    </option>
+                    {tags?.map((item: any) => (
+                      <option
+                        className="line-clamp-1 flex-1 text-left py-1.5"
+                        key={item?.id}
+                        value={item.name}
+                      >
+                        {item.name}
+                      </option>
+                    ))}
+                  </select>
+                  ;
                   {field.value.length > 0 && (
                     <div className="flex-start mt-2.5 gap-2.5">
                       {field.value.map((tag: any) => (
