@@ -7,6 +7,10 @@ interface udpateProfile {
   onSuccess: () => void;
 }
 
+interface getProfile {
+  userId: string;
+}
+
 export const updateProfile = createAsyncThunk(
   "profile/updateProfile",
   async ({ values, userId, onSuccess }: udpateProfile, { rejectWithValue }) => {
@@ -20,39 +24,56 @@ export const updateProfile = createAsyncThunk(
   }
 );
 
+export const getProfile = createAsyncThunk(
+  "profile/getProfile",
+  async ({ userId }: getProfile, { rejectWithValue }) => {
+    try {
+      const snapshot = await firebase
+        .firestore()
+        .collection("users")
+        .doc(userId)
+        .get();
+      const users = snapshot?.data();
+      return users;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
 interface AuthState {
-  users: any;
+  profile: any;
   loading: boolean;
   error: any;
 }
 
 const initialState: AuthState = {
-  users: null,
+  profile: null,
   loading: false,
   error: null,
 };
 
-const communitySlice = createSlice({
-  name: "community",
+const profileSlice = createSlice({
+  name: "profile",
   initialState: initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder;
-    //   .addCase(getUsers.pending, (state) => {
-    //     console.log("Running");
-    //     state.loading = true;
-    //     state.error = null;
-    //   })
-    //   .addCase(getUsers.fulfilled, (state, action) => {
-    //     state.loading = false;
-    //     state.users = action.payload;
-    //   })
-    //   .addCase(getUsers.rejected, (state, action) => {
-    //     console.log("Error");
-    //     state.loading = false;
-    //     state.error = action.error;
-    //   });
+    builder
+      .addCase(getProfile.pending, (state) => {
+        console.log("Running");
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.profile = action.payload;
+      })
+      .addCase(getProfile.rejected, (state, action) => {
+        console.log("Error");
+        state.loading = false;
+        state.error = action.error;
+      });
   },
 });
 
-export default communitySlice.reducer;
+export default profileSlice.reducer;
