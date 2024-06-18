@@ -8,7 +8,7 @@ interface Props extends SearchParamsProps {
   clerkId?: string | null;
 }
 
-const QuestionTab = async ({ searchParams, userId, clerkId }: Props) => {
+const QuestionTab = ({ searchParams, userId, clerkId }: Props) => {
   const result = {
     questions: [
       {
@@ -23,7 +23,7 @@ const QuestionTab = async ({ searchParams, userId, clerkId }: Props) => {
         author: {
           id: "49820948290",
           name: "Ahsan Author",
-          picture: "/assets/images/logo.png",
+          profileImage: "/assets/images/logo.png",
           clerkId: "8094892374824",
         },
         upvotes: [],
