@@ -8,7 +8,7 @@ import { formUrlQuery, removeKeysFromQuery } from "@/lib/utils";
 import { useDispatch, useSelector } from "react-redux";
 import { ThunkDispatch } from "@reduxjs/toolkit";
 // import { useUser } from "@clerk/nextjs";
-import { handleUser } from "@/store/slices/authSlice";
+// import { handleUser } from "@/store/slices/authSlice";
 import { toast } from "react-toastify";
 
 interface CustomInputProps {
