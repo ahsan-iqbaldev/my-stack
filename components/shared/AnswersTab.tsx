@@ -7,7 +7,7 @@ interface Props extends SearchParamsProps {
   clerkId?: string | null;
 }
 
-const AnswersTab = async ({ searchParams, userId, clerkId }: Props) => {
+const AnswersTab =  ({ searchParams, userId, clerkId }: Props) => {
   const result = {
     answers: [
       {
