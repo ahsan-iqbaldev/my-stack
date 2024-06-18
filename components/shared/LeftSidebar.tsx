@@ -7,8 +7,8 @@ import { redirect, usePathname } from "next/navigation";
 import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import { Dispatch, ThunkDispatch } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
 import { sigOutUser } from "@/store/slices/authSlice";
+import { toast } from "../ui/use-toast";
 // import { SignedOut, useAuth } from '@clerk/nextjs';
 
 const LeftSidebar = () => {
@@ -19,7 +19,12 @@ const LeftSidebar = () => {
 
   const handleLogout = () => {
     dispatch(
-      sigOutUser({ onSuccess: () => toast.success("Logged out successfully") })
+      sigOutUser({
+        onSuccess: () =>
+          toast({
+            title: `Logged out successfully`,
+          }),
+      })
     );
   };
 
