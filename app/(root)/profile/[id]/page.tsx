@@ -6,19 +6,24 @@ import Image from "next/image";
 import Link from "next/link";
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { getJoinedDate } from "@/lib/utils";
 import ProfileLink from "@/components/shared/ProfileLink";
 import Stats from "@/components/shared/Stats";
 import QuestionTab from "@/components/shared/QuestionTab";
 import AnswersTab from "@/components/shared/AnswersTab";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { redirect } from "next/navigation";
+import { ThunkDispatch } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
+import { getProfile } from "@/store/slices/profileSlice";
+import moment from "moment";
 // import { auth } from "@clerk/nextjs/server";
 
 const Page = ({ params, searchParams }: URLProps) => {
   const { user } = useSelector((state: any) => state.authentication);
-
+  const { profile } = useSelector((state: any) => state.profile);
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
   if (!user) redirect("/sign-in");
 
   const userId = user?.userId;
@@ -44,12 +49,20 @@ const Page = ({ params, searchParams }: URLProps) => {
     },
   };
 
+  useEffect(() => {
+    dispatch(
+      getProfile({
+        userId,
+      })
+    );
+  }, []);
+
   return (
     <>
       <div className="flex flex-col-reverse items-start justify-between sm:flex-row">
         <div className="flex flex-col items-start gap-4 lg:flex-row">
           <Image
-            src={userInfo?.user.picture}
+            src={profile?.profileImage}
             alt="profile picture"
             width={140}
             height={140}
@@ -57,18 +70,16 @@ const Page = ({ params, searchParams }: URLProps) => {
           />
 
           <div className="mt-3">
-            <h2 className="h2-bold text-dark100_light900">
-              {userInfo.user.name}
-            </h2>
+            <h2 className="h2-bold text-dark100_light900">{profile?.name}</h2>
             <p className="paragraph-regular text-dark200_light800">
-              @{userInfo.user.username}
+              @{profile?.userName}
             </p>
 
             <div className="mt-5 flex flex-wrap items-center justify-start gap-5">
-              {userInfo.user.portfolioWebsite && (
+              {profile?.portfolioWebsite && (
                 <ProfileLink
                   imgUrl="/assets/icons/link.svg"
-                  href={userInfo.user.portfolioWebsite}
+                  href={profile?.portfolioWebsite}
                   title="Portfolio"
                 />
               )}
@@ -76,19 +87,21 @@ const Page = ({ params, searchParams }: URLProps) => {
               {userInfo.user.location && (
                 <ProfileLink
                   imgUrl="/assets/icons/location.svg"
-                  title={userInfo.user.location}
+                  title={profile?.location}
                 />
               )}
 
               <ProfileLink
                 imgUrl="/assets/icons/calendar.svg"
-                title={getJoinedDate(userInfo.user.joinedAt)}
+                title={moment
+                  .unix(profile?.createdAt?.seconds)
+                  .format("DD-MMM-YYYY")}
               />
             </div>
 
-            {userInfo.user.bio && (
+            {profile?.bio && (
               <p className="paragraph-regular text-dark400_light800 mt-8">
-                {userInfo.user.bio}
+                {profile?.bio}
               </p>
             )}
           </div>
