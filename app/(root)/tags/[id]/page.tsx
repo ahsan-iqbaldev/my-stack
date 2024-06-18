@@ -4,7 +4,7 @@ import Pagination from "@/components/shared/Pagination";
 import LocalSearchbar from "@/components/shared/search/LocalSearchbar";
 import { URLProps } from "@/types";
 
-const Page = async ({ params, searchParams }: URLProps) => {
+const Page =  ({ params, searchParams }: URLProps) => {
   const result = {
     questions: [
       {
