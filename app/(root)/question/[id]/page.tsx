@@ -16,14 +16,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { getSingleQuestion } from "@/store/slices/homeSlice";
 import { ThunkDispatch } from "@reduxjs/toolkit";
 import moment from "moment";
+import { redirect } from "next/navigation";
+import Loader from "@/components/shared/Loader";
 
 const Page = ({ params, searchParams }: any) => {
   const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
   const { user } = useSelector((state: any) => state.authentication);
-  const { sinleQuestion } = useSelector((state: any) => state.home);
+  const { sinleQuestion, loading } = useSelector((state: any) => state.home);
 
   const userId = user?.userId;
   const docId = params?.id;
+
+  console.log(userId, docId, "params");
 
   const result = {
     title:
@@ -71,13 +75,16 @@ const Page = ({ params, searchParams }: any) => {
     ],
   };
 
+  if (!user) redirect("/sign-in");
   useEffect(() => {
     dispatch(getSingleQuestion({ docId, userId }));
   }, []);
 
+
   return (
     <>
       <div className="flex-start w-full flex-col">
+        {loading && <Loader />}
         <div className="flex w-full flex-col-reverse justify-between gap-5 sm:flex-row sm:items-center sm:gap-2">
           <Link
             href={`/profile/${sinleQuestion?.author?.id}`}
@@ -105,7 +112,7 @@ const Page = ({ params, searchParams }: any) => {
                   ? false
                   : sinleQuestion?.stats[0]?.hasupVoted
               }
-              downvotes={result.downvotes.length}
+              downvotes={sinleQuestion?.downvotes}
               hasdownVoted={
                 sinleQuestion?.stats == null
                   ? false
