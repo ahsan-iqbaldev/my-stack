@@ -117,8 +117,8 @@ export default function Home({ searchParams }: SearchParamsProps) {
               title={question.title}
               tags={question.tags}
               author={question.author}
-              upvotes={["ahsan", "ali", "usman"]}
-              views={5}
+              upvotes={(question?.downvotes || 0) + (question?.upvotes || 0)}
+              views={50}
               answers={[
                 { id: "1", author: "ali" },
                 { id: "2", author: "Ahsan" },
