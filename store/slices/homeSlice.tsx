@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import firebase from "../../config/firebase";
+import { produce } from "immer";
 
 export const getQuestions = createAsyncThunk(
   "home/getQuestions",
@@ -143,22 +144,97 @@ export const getSingleQuestion = createAsyncThunk(
 
 export const handleVotes = createAsyncThunk(
   "home/handleVotes",
-  async ({ payload }: any, { rejectWithValue }) => {
+  async ({ payload, onSuccess }: any, { rejectWithValue }) => {
     console.log(payload, "payload");
     try {
-      await firebase
+      const votesQuerySnapshot = await firebase
         .firestore()
         .collection("votes")
-        .add(payload)
-        .then((docRef) => {
-          firebase
-            .firestore()
-            .collection("questions")
-            .doc(payload?.docId)
-            .update({
-              upvotes: firebase.firestore.FieldValue.increment(1),
-            });
-        });
+        .where("docId", "==", payload?.docId)
+        .where("userId", "==", payload?.userId)
+        .get();
+
+      let addVotes: any;
+      console.log(addVotes, "addVotesaddVotes");
+
+      if (votesQuerySnapshot.empty) {
+        await firebase
+          .firestore()
+          .collection("votes")
+          .add(payload)
+          .then((docRef) => {
+            console.log(docRef?.id, "Document written with ID: ", docRef?.id);
+            addVotes = docRef?.id;
+            if (payload?.type == "upvote") {
+              firebase
+                .firestore()
+                .collection("questions")
+                .doc(payload?.docId)
+                .update({
+                  upvotes: firebase.firestore.FieldValue.increment(1),
+                });
+            } else {
+              firebase
+                .firestore()
+                .collection("questions")
+                .doc(payload?.docId)
+                .update({
+                  downvotes: firebase.firestore.FieldValue.increment(1),
+                });
+            }
+          });
+      } else {
+        await firebase
+          .firestore()
+          .collection("votes")
+          .doc(payload?.udpateId)
+          .update(payload);
+      }
+      const docId = addVotes || payload?.udpateId;
+
+      console.log(docId, "docIddocIddocId");
+      onSuccess(docId);
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const getUpdatedStats = createAsyncThunk(
+  "home/getUpdatedStats",
+  async ({ docId }: any, { rejectWithValue }) => {
+    try {
+      const snapshot = await firebase
+        .firestore()
+        .collection("votes")
+        .doc(docId)
+        .get();
+      const paylaod = {
+        ...snapshot.data(),
+        id: snapshot.id,
+      };
+      return paylaod;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const getUpdatedQuestion = createAsyncThunk(
+  "home/getUpdatedQuestion",
+  async ({ questionId }: any, { rejectWithValue }) => {
+    try {
+      const snapshot = await firebase
+        .firestore()
+        .collection("questions")
+        .doc(questionId)
+        .get();
+      const paylaod: any = {
+        ...snapshot.data(),
+        id: snapshot.id,
+      };
+      console.log(paylaod, "paylaodudpatedbyahsan");
+      return paylaod;
     } catch (err: any) {
       return rejectWithValue(err.message);
     }
@@ -199,6 +275,19 @@ const homeSlice = createSlice({
         state.loading = false;
         state.error = action.error;
       })
+      .addCase(handleVotes.pending, (state) => {
+        console.log("Running");
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(handleVotes.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(handleVotes.rejected, (state, action) => {
+        console.log("Error");
+        state.loading = false;
+        state.error = action.error;
+      })
       .addCase(getSingleQuestion.pending, (state) => {
         console.log("Running");
         state.loading = true;
@@ -210,6 +299,50 @@ const homeSlice = createSlice({
         state.sinleQuestion = action.payload;
       })
       .addCase(getSingleQuestion.rejected, (state, action) => {
+        console.log("Error");
+        state.loading = false;
+        state.error = action.error;
+      })
+      .addCase(getUpdatedStats.pending, (state) => {
+        console.log("Running");
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getUpdatedStats.fulfilled, (state, action) => {
+        console.log(state.sinleQuestion, "state.sinleQuestion");
+        state.loading = false;
+        console.log(action.payload, "Updated question data by ahsan iqbal:");
+        if (state.sinleQuestion && state.sinleQuestion.stats) {
+          state.sinleQuestion.stats[0] = action.payload;
+        } else {
+          state.sinleQuestion.stats = [action.payload];
+          console.log("sinleQuestion or its stats array is null or undefined.");
+        }
+      })
+      .addCase(getUpdatedStats.rejected, (state, action) => {
+        console.log("Error");
+        state.loading = false;
+        state.error = action.error;
+      })
+      .addCase(getUpdatedQuestion.pending, (state) => {
+        console.log("Running");
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getUpdatedQuestion.fulfilled, (state, action) => {
+        state.loading = false;
+        console.log(action.payload, "Updated question data:");
+
+        if (state.sinleQuestion) {
+          state.sinleQuestion = produce(state.sinleQuestion, (draft: any) => {
+            draft.upvotes = action.payload?.upvotes;
+            draft.downvotes = action.payload?.downvotes;
+          });
+        } else {
+          console.log("state.singleQuestion is null or undefined.");
+        }
+      })
+      .addCase(getUpdatedQuestion.rejected, (state, action) => {
         console.log("Error");
         state.loading = false;
         state.error = action.error;
