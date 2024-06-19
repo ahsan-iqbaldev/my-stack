@@ -11,7 +11,7 @@ import { useEffect } from "react";
 import { toast } from "../ui/use-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { ThunkDispatch } from "@reduxjs/toolkit";
-import { handleVotes } from "@/store/slices/homeSlice";
+import { getUpdatedQuestion, getUpdatedStats, handleVotes } from "@/store/slices/homeSlice";
 
 interface Props {
   type: string;
@@ -49,6 +49,7 @@ const Votes = ({
     hasSaved,
     ">>>>>>>>>>>>>>>>>>>>>"
   );
+  const questionId = sinleQuestion?.id
   const handleSave = () => {
     // await toggleSaveQuestion({
     //   userId: JSON.parse(userId),
@@ -74,15 +75,27 @@ const Votes = ({
 
     if (action === "upvote") {
       if (type === "Question") {
+        const stats = sinleQuestion?.stats;
+        const updatedId = stats == null ? null : stats[0]?.id;
         const payload = {
           userId,
           docId: sinleQuestion?.id,
-          totalVotes: upvotes,
+          totalVotes: upvotes || 0,
           hasupVoted: true,
           hasdownVoted: false,
+          udpateId: updatedId,
+          type: "upvote",
         };
 
-        dispatch(handleVotes({ payload }));
+        dispatch(
+          handleVotes({
+            payload,
+            onSuccess: (docId: string) => {
+              dispatch(getUpdatedStats({ docId }));
+              dispatch(getUpdatedQuestion({ questionId }));
+            },
+          })
+        );
 
         // await upvoteQuestion({
         //   questionId: JSON.parse(itemId),
@@ -108,6 +121,28 @@ const Votes = ({
 
     if (action === "downvote") {
       if (type === "Question") {
+        const stats = sinleQuestion?.stats;
+        const updatedId = stats == null ? null : stats[0]?.id;
+        const payload = {
+          userId,
+          docId: sinleQuestion?.id,
+          totalVotes: upvotes || 0,
+          hasupVoted: false,
+          hasdownVoted: true,
+          udpateId: updatedId,
+          type: "downvote",
+        };
+
+        dispatch(
+          handleVotes({
+            payload,
+            onSuccess: (docId: string) => {
+              dispatch(getUpdatedStats({ docId }));
+              dispatch(getUpdatedQuestion({ questionId }));
+            },
+          })
+        );
+
         // await downvoteQuestion({
         //   questionId: JSON.parse(itemId),
         //   userId: JSON.parse(userId),
@@ -179,7 +214,7 @@ const Votes = ({
 
           <div className="flex-center background-light700_dark400 min-w-[18px] rounded-sm p-1">
             <p className="subtle-medium text-dark400_light900">
-              {formatAndDivideNumber(downvotes)}
+              {formatAndDivideNumber(downvotes || 0)}
             </p>
           </div>
         </div>
