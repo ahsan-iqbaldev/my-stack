@@ -1,12 +1,19 @@
+"use client";
 import Filter from "@/components/shared/Filter";
 import NoResult from "@/components/shared/NoResult";
 import Pagination from "@/components/shared/Pagination";
 import LocalSearchbar from "@/components/shared/search/LocalSearchbar";
 import { TagFilters } from "@/constants/filters";
+import { getTags } from "@/store/slices/tagsSlice";
 import { SearchParamsProps } from "@/types";
+import { ThunkDispatch } from "@reduxjs/toolkit";
 import Link from "next/link";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-const Page =  ({ searchParams }: SearchParamsProps) => {
+const Page = ({ searchParams }: SearchParamsProps) => {
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
+  const { tags } = useSelector((state: any) => state.tags);
   const result = {
     tags: [
       {
@@ -15,7 +22,7 @@ const Page =  ({ searchParams }: SearchParamsProps) => {
         questions: [],
       },
       {
-        id: "9823049823", 
+        id: "9823049823",
         name: "Ahsan",
         questions: [],
       },
@@ -33,6 +40,10 @@ const Page =  ({ searchParams }: SearchParamsProps) => {
     ],
     isNext: false,
   };
+
+  useEffect(() => {
+    dispatch(getTags());
+  }, []);
 
   return (
     <>
@@ -54,23 +65,25 @@ const Page =  ({ searchParams }: SearchParamsProps) => {
       </div>
 
       <section className="mt-12 flex flex-wrap gap-4">
-        {result.tags.length > 0 ? (
-          result.tags.map((tag) => (
+        {tags?.length > 0 ? (
+          tags?.map((tag: any) => (
             <Link
-              href={`/tags/${tag.id}`}
+              href={`/tags/${tag?.id}`}
               key={tag.id}
               className="shadow-light100_darknone"
             >
               <article className="background-light900_dark200 light-border flex w-full flex-col rounded-2xl border px-8 py-10 sm:w-[260px]">
                 <div className="background-light800_dark400 w-fit rounded-sm px-5 py-1.5">
                   <p className="paragraph-semibold text-dark300_light900">
-                    {tag.name}
+                    {tag?.name}
                   </p>
                 </div>
 
+                {/* <p>Ahsan Is here</p> */}
+
                 <p className="small-medium text-dark400_light500 mt-3.5">
                   <span className="body-semibold primary-text-gradient mr-2.5">
-                    {tag.questions.length}+
+                    {tag?.questions?.length}+
                   </span>{" "}
                   Questions
                 </p>
