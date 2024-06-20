@@ -1,10 +1,22 @@
+"use client";
+
 import QuestionCard from "@/components/shared/cards/QuestionCard";
+import Loader from "@/components/shared/Loader";
 import NoResult from "@/components/shared/NoResult";
 import Pagination from "@/components/shared/Pagination";
 import LocalSearchbar from "@/components/shared/search/LocalSearchbar";
+import { getSingleTag, getTagQuestions } from "@/store/slices/tagsSlice";
 import { URLProps } from "@/types";
+import { ThunkDispatch } from "@reduxjs/toolkit";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-const Page =  ({ params, searchParams }: URLProps) => {
+const Page = ({ params, searchParams }: URLProps) => {
+  console.log(params, "byahsanparams");
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
+  const { singleTag, questions, loading } = useSelector(
+    (state: any) => state.tags
+  );
   const result = {
     questions: [
       {
@@ -32,9 +44,18 @@ const Page =  ({ params, searchParams }: URLProps) => {
     tagTitle: "Tag Title",
   };
 
+  useEffect(() => {
+    dispatch(getSingleTag({ tagId: params.id }));
+  }, []);
+
+  useEffect(() => {
+    dispatch(getTagQuestions({ questionIds: singleTag?.questions }));
+  }, [singleTag, params?.id]);
+
   return (
     <>
-      <h1 className="h1-bold text-dark100_light900">{result.tagTitle}</h1>
+      {loading && <Loader />}
+      <h1 className="h1-bold text-dark100_light900">{singleTag?.name}</h1>
 
       <div className="mt-11 w-full">
         <LocalSearchbar
@@ -47,17 +68,20 @@ const Page =  ({ params, searchParams }: URLProps) => {
       </div>
 
       <div className="mt-10 flex w-full flex-col gap-6">
-        {result.questions.length > 0 ? (
-          result.questions.map((question: any) => (
+        {questions?.length > 0 ? (
+          questions?.map((question: any) => (
             <QuestionCard
-              key={question.id}
-              id={question.id}
-              title={question.title}
-              tags={question.tags}
-              author={question.author}
-              upvotes={question.upvotes}
-              views={question.views}
-              answers={question.answers}
+              key={question?.id}
+              id={question?.id}
+              title={question?.title}
+              tags={question?.tags}
+              author={question?.author}
+              upvotes={(question?.downvotes || 0) + (question?.upvotes || 0)}
+              views={50}
+              answers={[
+                { id: "1", author: "ali" },
+                { id: "2", author: "Ahsan" },
+              ]}
               createdAt={question.createdAt}
             />
           ))

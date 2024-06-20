@@ -7,6 +7,7 @@ import communitySlice from "./slices/communitySlice";
 import questionSlice from "./slices/questionSlice";
 import profileSlice from "./slices/profileSlice";
 import homeSlice from "./slices/homeSlice";
+import tagsSlice from "./slices/tagsSlice";
 
 const reducers = combineReducers({
   authentication: authSlice,
@@ -14,6 +15,7 @@ const reducers = combineReducers({
   question: questionSlice,
   profile: profileSlice,
   home: homeSlice,
+  tags: tagsSlice,
 });
 
 const persistConfig = {
