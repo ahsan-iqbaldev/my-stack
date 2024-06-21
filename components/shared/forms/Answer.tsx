@@ -18,6 +18,10 @@ import { Button } from "../../ui/button";
 import Image from "next/image";
 // import { createAnswer } from '@/lib/actions/answer.action'
 import { usePathname } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { ThunkDispatch } from "@reduxjs/toolkit";
+import { addAnswers, getAnswer } from "@/store/slices/homeSlice";
+import { toast } from "@/components/ui/use-toast";
 
 interface Props {
   question: string;
@@ -26,6 +30,7 @@ interface Props {
 }
 
 const Answer = ({ question, questionId, authorId }: Props) => {
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
   const pathname = usePathname();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmittingAI, setSetIsSubmittingAI] = useState(false);
@@ -38,7 +43,7 @@ const Answer = ({ question, questionId, authorId }: Props) => {
     },
   });
 
-  const handleCreateAnswer =  (values: z.infer<typeof AnswerSchema>) => {
+  const handleCreateAnswer = (values: z.infer<typeof AnswerSchema>) => {
     setIsSubmitting(true);
 
     try {
@@ -49,12 +54,18 @@ const Answer = ({ question, questionId, authorId }: Props) => {
         path: pathname,
       };
       console.log(payload, "payload");
-      //   await createAnswer({
-      //     content: values.answer,
-      //     author: JSON.parse(authorId),
-      //     question: JSON.parse(questionId),
-      //     path: pathname,
-      //   });
+      dispatch(
+        addAnswers({
+          payload,
+          onSuccess: (res: string) => {
+            const docId = payload?.question;
+            dispatch(getAnswer({ docId }));
+            toast({
+              title: res,
+            });
+          },
+        })
+      );
 
       form.reset();
 
@@ -70,11 +81,9 @@ const Answer = ({ question, questionId, authorId }: Props) => {
     }
   };
 
-  const generateAIAnswer =  () => {
+  const generateAIAnswer = () => {
     // if (!authorId) return;
-
     // setSetIsSubmittingAI(true);
-
     // try {
     //   // const response = await fetch(
     //   //   `${process.env.NEXT_PUBLIC_SERVER_URL}/api/chatgpt`,
@@ -83,18 +92,13 @@ const Answer = ({ question, questionId, authorId }: Props) => {
     //   //     body: JSON.stringify({ question }),
     //   //   }
     //   // );
-
     //   // const aiAnswer = await response.json();
-
     //   // // Convert plain text to HTML format
-
     //   // const formattedAnswer = aiAnswer.reply.replace(/\n/g, "<br />");
-
     //   // if (editorRef.current) {
     //   //   const editor = editorRef.current as any;
     //   //   editor.setContent(formattedAnswer);
     //   // }
-
     //   // Toast...
     // } catch (error) {
     //   console.log(error);

@@ -8,6 +8,8 @@ import { getTimestamp } from "@/lib/utils";
 import ParseHTML from "./ParseHTML";
 import Votes from "./Votes";
 import Pagination from "./Pagination";
+import { useSelector } from "react-redux";
+import moment from "moment";
 
 interface Props {
   questionId: string;
@@ -17,7 +19,7 @@ interface Props {
   filter?: string;
 }
 
-const AllAnswers =  ({
+const AllAnswers = ({
   questionId,
   userId,
   totalAnswers,
@@ -29,7 +31,7 @@ const AllAnswers =  ({
   //     page: page ? +page : 1,
   //     sortBy: filter,
   //   })
-
+  const { answers } = useSelector((state: any) => state.home);
   const result = {
     isNextAnswer: true,
     answers: [
@@ -61,15 +63,15 @@ const AllAnswers =  ({
       </div>
 
       <div>
-        {result.answers.map((answer) => (
+        {answers?.map((answer: any) => (
           <article key={answer.id} className="light-border border-b py-10">
             <div className="mb-8 flex flex-col-reverse justify-between gap-5 sm:flex-row sm:items-center sm:gap-2">
               <Link
-                href={`/profile/${answer.author.clerkId}`}
+                href={`/profile/${answer?.author?.id}`}
                 className="flex flex-1 items-start gap-1 sm:items-center"
               >
                 <Image
-                  src={answer.author.picture}
+                  src={answer?.author?.profileImage}
                   width={18}
                   height={18}
                   alt="profile"
@@ -80,13 +82,16 @@ const AllAnswers =  ({
                     {answer.author.name}
                   </p>
 
-                  <p className="small-regular text-light400_light500 ml-0.5 mt-0.5 line-clamp-1">
-                    answered {getTimestamp(answer.createdAt)}
+                  <p className="small-regular text-light400_light500 ml-2 mt-0.5  line-clamp-1">
+                    answered{" "}
+                    {moment
+                      .unix(answer?.createdAt?.seconds)
+                      .format("DD-MMM-YYYY hh:mm A")}
                   </p>
                 </div>
               </Link>
               <div className="flex justify-end">
-                <Votes
+                {/* <Votes
                   type="Answer"
                   itemId={JSON.stringify(answer.id)}
                   userId={JSON.stringify(userId)}
@@ -94,10 +99,10 @@ const AllAnswers =  ({
                   hasupVoted={answer.hasupVoted}
                   downvotes={answer.downvotes.length}
                   hasdownVoted={answer.hasdownVoted}
-                />
+                /> */}
               </div>
             </div>
-            <ParseHTML data={answer.content} />
+            <ParseHTML data={answer.content || ""} />
           </article>
         ))}
       </div>

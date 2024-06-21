@@ -2,6 +2,17 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import firebase from "../../config/firebase";
 import { produce } from "immer";
 
+interface Answer {
+  id: string;
+  text: string;
+  author: string; // Assuming author is the user ID
+  // Add more properties as needed
+}
+
+interface GetAnswerArgs {
+  docId: string;
+}
+
 export const getQuestions = createAsyncThunk(
   "home/getQuestions",
   async (_, { rejectWithValue }) => {
@@ -102,7 +113,6 @@ export const getSingleQuestion = createAsyncThunk(
           ...questionDoc.data(),
         };
 
-        // Fetch author data from 'users' collection based on authorId
         if (questionData?.author) {
           const userDoc = await firebase
             .firestore()
@@ -114,7 +124,6 @@ export const getSingleQuestion = createAsyncThunk(
           questionData.author = null;
         }
 
-        // Fetch statistics from 'votes' collection based on docId and userId
         const votesQuerySnapshot = await firebase
           .firestore()
           .collection("votes")
@@ -241,8 +250,75 @@ export const getUpdatedQuestion = createAsyncThunk(
   }
 );
 
+export const addAnswers = createAsyncThunk(
+  "home/addAnswers",
+  async ({ payload, onSuccess }: any, { rejectWithValue }) => {
+    try {
+      const createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      payload.createdAt = createdAt;
+      await firebase
+        .firestore()
+        .collection("questions")
+        .doc(payload?.question)
+        .collection("answers")
+        .add(payload);
+
+      onSuccess("Answer Submit Successfully");
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const getAnswer = createAsyncThunk<Answer[], GetAnswerArgs>(
+  "home/getAnswer",
+  async ({ docId }, { rejectWithValue }) => {
+    try {
+      const answers: Answer[] = [];
+
+      const initialSnapshot = await firebase
+        .firestore()
+        .collection("questions")
+        .doc(docId)
+        .collection("answers")
+        .get();
+
+      initialSnapshot.forEach((doc: any) => {
+        const answerData = doc.data() as any;
+        answers.push({
+          id: doc.id,
+          ...answerData,
+        });
+      });
+
+      const authorIds = answers.map((answer) => answer.author);
+
+      const usersSnapshot = await firebase
+        .firestore()
+        .collection("users")
+        .where(firebase.firestore.FieldPath.documentId(), "in", authorIds)
+        .get();
+
+      const usersMap: Record<string, any> = {};
+      usersSnapshot.forEach((userDoc) => {
+        usersMap[userDoc.id] = userDoc.data();
+      });
+
+      answers.forEach((answer: any) => {
+        answer.author = usersMap[answer.author];
+      });
+
+      return answers;
+    } catch (error: any) {
+      console.error("Error in getAnswer thunk:", error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 interface AuthState {
   allQuestions: any;
+  answers: any;
   sinleQuestion: any;
   loading: boolean;
   error: any;
@@ -250,6 +326,7 @@ interface AuthState {
 
 const initialState: AuthState = {
   allQuestions: [],
+  answers: [],
   sinleQuestion: null,
   loading: false,
   error: null,
@@ -261,6 +338,20 @@ const homeSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      .addCase(getAnswer.pending, (state) => {
+        console.log("Running");
+        // state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAnswer.fulfilled, (state, action) => {
+        // state.loading = false;
+        state.answers = action.payload;
+      })
+      .addCase(getAnswer.rejected, (state, action) => {
+        console.log("Error");
+        // state.loading = false;
+        state.error = action.error;
+      })
       .addCase(getQuestions.pending, (state) => {
         console.log("Running");
         state.loading = true;
@@ -271,6 +362,20 @@ const homeSlice = createSlice({
         state.allQuestions = action.payload;
       })
       .addCase(getQuestions.rejected, (state, action) => {
+        console.log("Error");
+        state.loading = false;
+        state.error = action.error;
+      })
+      .addCase(addAnswers.pending, (state) => {
+        console.log("Running");
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addAnswers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.allQuestions = action.payload;
+      })
+      .addCase(addAnswers.rejected, (state, action) => {
         console.log("Error");
         state.loading = false;
         state.error = action.error;

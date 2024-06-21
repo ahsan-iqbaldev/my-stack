@@ -13,7 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getSingleQuestion } from "@/store/slices/homeSlice";
+import { getAnswer, getSingleQuestion } from "@/store/slices/homeSlice";
 import { ThunkDispatch } from "@reduxjs/toolkit";
 import moment from "moment";
 import { redirect } from "next/navigation";
@@ -22,8 +22,11 @@ import Loader from "@/components/shared/Loader";
 const Page = ({ params, searchParams }: any) => {
   const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
   const { user } = useSelector((state: any) => state.authentication);
-  const { sinleQuestion, loading } = useSelector((state: any) => state.home);
+  const { sinleQuestion, loading, answers } = useSelector(
+    (state: any) => state.home
+  );
 
+  // console.log(answers,"'answersanswersanswers");
   const userId = user?.userId;
   const docId = params?.id;
 
@@ -78,8 +81,8 @@ const Page = ({ params, searchParams }: any) => {
   if (!user) redirect("/sign-in");
   useEffect(() => {
     dispatch(getSingleQuestion({ docId, userId }));
+    dispatch(getAnswer({ docId }));
   }, []);
-
 
   return (
     <>
@@ -164,7 +167,7 @@ const Page = ({ params, searchParams }: any) => {
       <AllAnswers
         questionId={sinleQuestion?.id}
         userId={userId}
-        totalAnswers={result.answers.length}
+        totalAnswers={answers?.length}
         page={searchParams?.page}
         filter={searchParams?.filter}
       />
