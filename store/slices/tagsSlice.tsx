@@ -23,7 +23,10 @@ export const getTags = createAsyncThunk(
 
 export const getSingleTag = createAsyncThunk(
   "tags/getSingleTag",
-  async ({ tagId }: { tagId: string }, { rejectWithValue }) => {
+  async (
+    { tagId, onSuccess }: { tagId: string; onSuccess: any },
+    { rejectWithValue }
+  ) => {
     try {
       const snapshot = await firebase
         .firestore()
@@ -31,7 +34,7 @@ export const getSingleTag = createAsyncThunk(
         .doc(tagId)
         .get();
       const users = { ...snapshot?.data(), id: snapshot?.id };
-
+      onSuccess(users);
       return users;
     } catch (err: any) {
       return rejectWithValue(err.message);
@@ -43,6 +46,7 @@ export const getTagQuestions = createAsyncThunk(
   "tags/getTagQuestions",
   async ({ questionIds }: { questionIds: string[] }, { rejectWithValue }) => {
     try {
+      console.log(questionIds, "questionIdsquestionIds");
       const fetchedQuestions = [];
 
       for (const questionId of questionIds) {
@@ -80,6 +84,7 @@ export const getTagQuestions = createAsyncThunk(
           console.error(`Question with ID ${questionId} not found`);
         }
       }
+      console.log(fetchedQuestions, "fetchedQuestionsfetchedQuestions");
 
       return fetchedQuestions;
     } catch (err: any) {

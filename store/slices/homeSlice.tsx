@@ -291,6 +291,10 @@ export const getAnswer = createAsyncThunk<Answer[], GetAnswerArgs>(
         });
       });
 
+      if (answers.length === 0) {
+        return [];
+      }
+
       const authorIds = answers.map((answer) => answer.author);
 
       const usersSnapshot = await firebase
@@ -308,7 +312,11 @@ export const getAnswer = createAsyncThunk<Answer[], GetAnswerArgs>(
         answer.author = usersMap[answer.author];
       });
 
-      return answers;
+      if (answers.length > 0) {
+        return answers;
+      } else {
+        return [];
+      }
     } catch (error: any) {
       console.error("Error in getAnswer thunk:", error);
       return rejectWithValue(error.message);
