@@ -5,15 +5,20 @@ import NoResult from "@/components/shared/NoResult";
 import Pagination from "@/components/shared/Pagination";
 import LocalSearchbar from "@/components/shared/search/LocalSearchbar";
 import { QuestionFilters } from "@/constants/filters";
+import { getMyQuestions } from "@/store/slices/collectionSlice";
 // import { getSavedQuestions } from "@/lib/actions/user.action";
 import { SearchParamsProps } from "@/types";
+import { ThunkDispatch } from "@reduxjs/toolkit";
 import { redirect } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 // import { auth } from "@clerk/nextjs/server";
 
 export default function Home({ searchParams }: SearchParamsProps) {
   const { user } = useSelector((state: any) => state.authentication);
+  const { questions } = useSelector((state: any) => state.collection);
   const userId = user?.userId;
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
 
   if (!user) redirect("/sign-in");
 
@@ -34,7 +39,7 @@ export default function Home({ searchParams }: SearchParamsProps) {
           picture: "/assets/images/logo.png",
           clerkId: "8094892374824",
         },
-        upvotes: [],
+        upvotes: 4,
         views: 4,
         answers: [],
         createdAt: new Date(),
@@ -42,6 +47,10 @@ export default function Home({ searchParams }: SearchParamsProps) {
     ],
     isNext: false,
   };
+
+  useEffect(() => {
+    dispatch(getMyQuestions({ userId }));
+  }, []);
 
   return (
     <>
@@ -63,10 +72,10 @@ export default function Home({ searchParams }: SearchParamsProps) {
       </div>
 
       <div className="mt-10 flex w-full flex-col gap-6">
-        {result.questions.length > 0 ? (
-          result.questions.map((question: any, index) => (
+        {questions?.length > 0 ? (
+          questions?.map((question: any) => (
             <QuestionCard
-              key={index}
+              key={question.id}
               id={question.id}
               title={question.title}
               tags={question.tags}
@@ -76,6 +85,7 @@ export default function Home({ searchParams }: SearchParamsProps) {
               answers={question.answers}
               createdAt={question.createdAt}
             />
+
           ))
         ) : (
           <NoResult
