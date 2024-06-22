@@ -45,12 +45,17 @@ const Page = ({ params, searchParams }: URLProps) => {
   };
 
   useEffect(() => {
-    dispatch(getSingleTag({ tagId: params.id }));
+    dispatch(
+      getSingleTag({
+        tagId: params.id,
+        onSuccess: (res: any) => {
+          dispatch(getTagQuestions({ questionIds: res?.questions }));
+        },
+      })
+    );
   }, []);
 
-  useEffect(() => {
-    dispatch(getTagQuestions({ questionIds: singleTag?.questions }));
-  }, [singleTag, params?.id]);
+  // useEffect(() => {}, [singleTag]);
 
   return (
     <>
