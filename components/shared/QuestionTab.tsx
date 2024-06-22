@@ -26,7 +26,7 @@ const QuestionTab = ({ searchParams, userId, clerkId }: Props) => {
           profileImage: "/assets/images/logo.png",
           clerkId: "8094892374824",
         },
-        upvotes: [],
+        upvotes: 9,
         views: 4,
         answers: [],
         createdAt: new Date(),
@@ -37,7 +37,7 @@ const QuestionTab = ({ searchParams, userId, clerkId }: Props) => {
 
   return (
     <>
-      {result.questions.map((question) => (
+      {result.questions.map((question: any) => (
         <QuestionCard
           key={question.id}
           id={question.id}
@@ -45,9 +45,12 @@ const QuestionTab = ({ searchParams, userId, clerkId }: Props) => {
           title={question.title}
           tags={question.tags}
           author={question.author}
-          upvotes={question.upvotes}
-          views={question.views}
-          answers={question.answers}
+          upvotes={(question?.downvotes || 0) + (question?.upvotes || 0)}
+          views={50}
+          answers={[
+            { id: "1", author: "ali" },
+            { id: "2", author: "Ahsan" },
+          ]}
           createdAt={question.createdAt}
         />
       ))}
