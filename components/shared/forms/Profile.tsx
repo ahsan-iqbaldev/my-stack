@@ -15,51 +15,78 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ProfileSchema } from "@/lib/validations";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ThunkDispatch } from "@reduxjs/toolkit";
-import { updateProfile } from "@/store/slices/profileSlice";
+import { getProfile, updateProfile } from "@/store/slices/profileSlice";
 import { toast } from "@/components/ui/use-toast";
 // import { updateUser } from "@/lib/actions/user.action";
 
 interface Props {
   clerkId: string;
-  user: any;
+  profile: any;
 }
 
-const Profile = ({ clerkId, user }: Props) => {
+const Profile = ({ clerkId, profile }: Props) => {
+  console.log(profile, "profilebyahsan");
   const type = "";
   const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
-  const userId = user?.userId;
-  const parsedUser = user;
+  const userId = clerkId;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [profileImageFile, setProfileImageFile] = useState<any>(null);
+  const [currentProfileImage, setCurrentProfileImage] = useState(
+    profile?.profileImage
+  );
+
+  useEffect(() => {
+    if (profile) {
+      form.reset({
+        name: profile.name || "",
+        userName: profile.userName || "",
+        portfolioWebsite: profile.portfolioWebsite || "",
+        location: profile.location || "",
+        bio: profile.bio || "",
+        tags: profile.tags || [],
+      });
+      // setProfileLoaded(true);
+    }
+  }, [profile]);
 
   const form = useForm<z.infer<typeof ProfileSchema>>({
     resolver: zodResolver(ProfileSchema),
-    defaultValues: {
-      name: parsedUser.name || "",
-      username: parsedUser.userName || "",
-      portfolioWebsite: parsedUser.portfolioWebsite || "",
-      location: parsedUser.location || "",
-      bio: parsedUser.bio || "",
-      tags: parsedUser.tags || [],
-    },
   });
+  const handleImageChange = (e: any) => {
+    const file = e.target.files[0];
+    setProfileImageFile(file);
 
-  function onSubmit(values: z.infer<typeof ProfileSchema>) {
+    const blobUrl = URL.createObjectURL(file);
+    setCurrentProfileImage(blobUrl);
+  };
+
+  function onSubmit(values: any) {
     // setIsSubmitting(true);
 
-    console.log(values, "values");
+    console.log(profileImageFile, "profileImageFile");
+    if (profileImageFile != null) {
+      values.profileImage = profileImageFile;
+    } else {
+      values.profileImage = currentProfileImage;
+    }
 
     dispatch(
       updateProfile({
         values,
         userId,
         onSuccess: () => {
+          dispatch(
+            getProfile({
+              userId,
+            })
+          );
           toast({
             title: `Profile updated successfully`,
           });
@@ -130,6 +157,30 @@ const Profile = ({ clerkId, user }: Props) => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="mt-9 flex w-full flex-col gap-9"
       >
+        <div className="flex items-center space-x-4 mb-2">
+          <div className="relative">
+            <img
+              src={currentProfileImage || profile?.profileImage}
+              alt="Profile"
+              className="w-20 h-20 rounded-full"
+            />
+
+            <label
+              htmlFor="profileImage"
+              className="absolute bottom-0 right-0 bg-blue-500 text-white px-2 py-1 rounded-md cursor-pointer"
+            >
+              Change
+            </label>
+            <input
+              type="file"
+              id="profileImage"
+              className="hidden"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+          </div>
+          <div></div>
+        </div>
         <FormField
           control={form.control}
           name="name"
@@ -151,7 +202,7 @@ const Profile = ({ clerkId, user }: Props) => {
         />
         <FormField
           control={form.control}
-          name="username"
+          name="userName"
           render={({ field }) => (
             <FormItem className="space-y-3.5">
               <FormLabel className="paragraph-semibold text-dark400_light800">
@@ -226,9 +277,9 @@ const Profile = ({ clerkId, user }: Props) => {
                     onKeyDown={(e) => handleInputKeyDown(e, field)}
                   />
 
-                  {field.value.length > 0 && (
+                  {field?.value?.length > 0 && (
                     <div className="flex-start mt-2.5 gap-2.5">
-                      {field.value.map((tag: any) => (
+                      {field?.value?.map((tag: any) => (
                         <Badge
                           key={tag}
                           className="subtle-medium background-light800_dark300 text-light400_light500 flex items-center justify-center gap-2 rounded-md border-none px-4 py-2 capitalize"
