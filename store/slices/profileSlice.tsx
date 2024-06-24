@@ -15,9 +15,24 @@ export const updateProfile = createAsyncThunk(
   "profile/updateProfile",
   async ({ values, userId, onSuccess }: udpateProfile, { rejectWithValue }) => {
     try {
-      firebase.firestore().collection("users").doc(userId).update(values);
+      console.log(values,'valuesvalueskhqjwheuiy')
+      const { profileImage } = values;
 
+      let imageUrl = null;
+
+      if (profileImage instanceof File) {
+        const storageRef = firebase.storage().ref(`profile_images/${userId}`);
+        const imageRef = storageRef.child(profileImage.name);
+
+        await imageRef.put(profileImage);
+        imageUrl = await imageRef.getDownloadURL();
+      } else {
+        imageUrl = values.profileImage;
+      }
+      values.profileImage = imageUrl;
+      firebase.firestore().collection("users").doc(userId).update(values);
       onSuccess();
+      console.log(values, "values");
     } catch (err: any) {
       return rejectWithValue(err.message);
     }
@@ -69,6 +84,21 @@ const profileSlice = createSlice({
         state.profile = action.payload;
       })
       .addCase(getProfile.rejected, (state, action) => {
+        console.log("Error");
+        state.loading = false;
+        state.error = action.error;
+      })
+
+      .addCase(updateProfile.pending, (state) => {
+        console.log("Running");
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.profile = action.payload;
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
         console.log("Error");
         state.loading = false;
         state.error = action.error;

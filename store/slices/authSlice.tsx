@@ -127,6 +127,24 @@ export const sigOutUser = createAsyncThunk(
   }
 );
 
+// export const getProfile = createAsyncThunk(
+//   "auth/getProfile",
+//   async ({ userId }: any, { rejectWithValue }) => {
+//     try {
+//       alert("Hello Ahsan Iqbal");
+//       const snapshot = await firebase
+//         .firestore()
+//         .collection("users")
+//         .doc(userId)
+//         .get();
+//       const users = snapshot?.data();
+//       return users;
+//     } catch (err: any) {
+//       return rejectWithValue(err.message);
+//     }
+//   }
+// );
+
 interface AuthState {
   user: any;
   loading: boolean;
